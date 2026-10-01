@@ -1,44 +1,48 @@
 @import "tailwindcss";
 
 /*
- * LET ME POLISH YOU — design tokens
- * Built on the official AIESEC palette (logos.aiesec.org/colours).
- * Contrast notes: white on --blue is 4:1 (large/bold text only); white on
- * teal/orange fails, so program colour blocks always carry --navy text.
+ * LET ME POLISH YOU — brand tokens
+ * Taken from the campaign logos: white paper, black ink, and the red brush
+ * swoosh (#FC3A3A). Contrast: #FC3A3A on white is 3.6:1 (large text and
+ * graphics only); --red-ink (#D92B2B, 4.9:1) is used for small text and
+ * for buttons carrying white text. Product colours carry ink (black) text:
+ * white on teal/orange fails contrast.
  */
 @theme {
-  --color-blue: #037ef3; /* AIESEC Blue — brand fields, large type */
-  --color-blue-ink: #0560c8; /* small text, links, buttons on white (6:1) */
-  --color-blue-soft: #e6f2fe;
-  --color-navy: #0a1f44; /* primary text, dark sections */
-  --color-navy-2: #13305f;
-  --color-grey: #52565e; /* AIESEC Grey — secondary text */
-  --color-mist: #f5f5f5; /* AIESEC Light */
-  --color-line: #dfe3ea;
+  --color-red: #fc3a3a;
+  --color-red-ink: #d92b2b;
+  --color-red-soft: #fff0f0;
+  --color-ink: #151515;
+  --color-ink-2: #2b2b2b;
+  --color-grey: #5c5c5c;
+  --color-mist: #f6f5f3;
+  --color-line: #e7e5e2;
   --color-yellow: #ffc845;
-  --color-purple: #7552cc;
-  --color-green: #00c16e;
 
-  /* Programs (official AIESEC product colours) */
+  /* AIESEC brand blue — used on the "What's AIESEC?" page only */
+  --color-aiesec: #037ef3;
+  --color-aiesec-ink: #0560c8;
+  --color-aiesec-soft: #e8f3fe;
+
+  /* AIESEC product colours (official, from the product logos) */
   --color-gv: #f85a40;
   --color-gta: #0cb9c1;
   --color-gte: #f48924;
-  /* Darker variants for text on white (≥4.5:1) */
+  /* Darker variants for small text on white (≥4.5:1) */
   --color-gv-ink: #c2371f;
   --color-gta-ink: #087f85;
   --color-gte-ink: #a85508;
 
-  --font-display: var(--font-bricolage), "Arial Black", sans-serif;
+  --font-display: var(--font-montserrat), "Arial Black", sans-serif;
   --font-sans: var(--font-lato), ui-sans-serif, system-ui, sans-serif;
-  --font-hand: var(--font-caveat), "Comic Sans MS", cursive;
+  --font-script: var(--font-madi), "Brush Script MT", cursive;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  --radius-photo: 1.25rem;
   --breakpoint-xs: 26rem;
 
-  --animate-marquee: marquee 60s linear infinite;
+  --animate-marquee: marquee 70s linear infinite;
   @keyframes marquee {
     from {
       transform: translate3d(0, 0, 0);
@@ -57,29 +61,29 @@
 
   html {
     -webkit-text-size-adjust: 100%;
-    scroll-padding-top: 5.5rem;
+    scroll-padding-top: 6rem;
   }
 
   body {
     background: #ffffff;
-    color: var(--color-navy);
+    color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background: var(--color-yellow);
-    color: var(--color-navy);
+    background: var(--color-red);
+    color: #fff;
   }
 
   :focus-visible {
-    outline: 3px solid var(--color-yellow);
+    outline: 3px solid var(--color-red-ink);
     outline-offset: 3px;
     border-radius: 6px;
   }
-  .on-light :focus-visible {
-    outline-color: var(--color-blue-ink);
+  .on-dark :focus-visible {
+    outline-color: #fff;
   }
 
   input[type="search"]::-webkit-search-cancel-button {
@@ -92,51 +96,50 @@
     padding-inline: var(--gutter);
   }
 
-  /* Heavy, friendly display voice */
+  /* Heavy geometric caps — the "POLISH" voice of the logo */
   .display {
     font-family: var(--font-display);
-    font-weight: 800;
-    font-variation-settings: "wdth" 92, "opsz" 72;
-    letter-spacing: -0.018em;
+    font-weight: 900;
+    letter-spacing: -0.02em;
     line-height: 0.95;
   }
-  .display-tight {
+  .display-caps {
     font-family: var(--font-display);
-    font-weight: 800;
-    font-variation-settings: "wdth" 78, "opsz" 96;
-    letter-spacing: -0.01em;
-    line-height: 0.88;
+    font-weight: 900;
     text-transform: uppercase;
+    letter-spacing: -0.015em;
+    line-height: 0.92;
+  }
+
+  /* Thin signature script — the "let me … you" voice. Short phrases only. */
+  .script {
+    font-family: var(--font-script);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+    text-transform: none;
   }
 
   .eyebrow {
     font-family: var(--font-display);
-    font-weight: 700;
-    font-variation-settings: "wdth" 80;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    font-size: 0.74rem;
     line-height: 1.2;
   }
 
-  .hand {
-    font-family: var(--font-hand);
-    font-weight: 600;
-    line-height: 1.05;
-  }
-
-  /* Buttons — AIESEC pills */
+  /* Buttons echo the white label boxes of the LC logos */
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.6rem;
-    border-radius: 999px;
-    padding: 0.95rem 1.6rem;
+    border-radius: 0.8rem;
+    padding: 0.95rem 1.5rem;
     font-family: var(--font-display);
-    font-weight: 700;
-    font-variation-settings: "wdth" 90;
-    font-size: 1rem;
+    font-weight: 800;
+    font-size: 0.98rem;
     line-height: 1;
     transition:
       transform 0.35s var(--ease-spring),
@@ -151,31 +154,32 @@
   .btn:active {
     transform: translateY(0) scale(0.98);
   }
-  .btn-primary {
-    background: var(--color-blue-ink);
+  .btn-red {
+    background: var(--color-red-ink);
+    color: #fff;
+    box-shadow: 0 5px 0 #a51d1d;
+  }
+  .btn-red:hover {
+    background: var(--color-ink);
+    box-shadow: 0 5px 0 #000;
+  }
+  .btn-ink {
+    background: var(--color-ink);
     color: #fff;
   }
-  .btn-primary:hover {
-    background: var(--color-navy);
+  .btn-ink:hover {
+    background: var(--color-red-ink);
   }
   .btn-white {
     background: #fff;
-    color: var(--color-navy);
-    box-shadow: 0 6px 0 rgba(10, 31, 68, 0.18);
+    color: var(--color-ink);
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.18);
   }
   .btn-white:hover {
-    background: var(--color-yellow);
-  }
-  .btn-yellow {
-    background: var(--color-yellow);
-    color: var(--color-navy);
-    box-shadow: 0 6px 0 rgba(10, 31, 68, 0.25);
-  }
-  .btn-yellow:hover {
-    background: #fff;
+    color: var(--color-red-ink);
   }
   .btn-ghost {
-    border: 2px solid currentColor;
+    box-shadow: inset 0 0 0 2px currentColor;
   }
 
   .chip {
@@ -185,12 +189,19 @@
     border-radius: 999px;
     padding: 0.45rem 0.85rem;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     line-height: 1.1;
   }
 
+  /* White label with a soft shadow — the LC logo box */
+  .label-box {
+    background: #fff;
+    border-radius: 0.6rem;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06), 0 8px 24px -12px rgba(0, 0, 0, 0.35);
+  }
+
   .photo {
-    border-radius: var(--radius-photo);
+    border-radius: 1rem;
     overflow: hidden;
     isolation: isolate;
   }

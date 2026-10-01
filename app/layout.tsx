@@ -1,15 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Caveat, Lato } from "next/font/google";
+import { Lato, Montserrat, Ms_Madi } from "next/font/google";
 import { SiteNav } from "@/components/navigation/SiteNav";
 import { SiteFooter } from "@/components/navigation/SiteFooter";
 import { MotionProvider } from "@/components/ui/MotionProvider";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
-const bricolage = Bricolage_Grotesque({
+const montserrat = Montserrat({
   subsets: ["latin", "latin-ext"],
-  axes: ["wdth", "opsz"],
-  variable: "--font-bricolage",
+  weight: ["700", "800", "900"],
+  variable: "--font-montserrat",
   display: "swap",
 });
 
@@ -21,10 +21,10 @@ const lato = Lato({
   display: "swap",
 });
 
-const caveat = Caveat({
+const madi = Ms_Madi({
   subsets: ["latin", "latin-ext"],
-  weight: ["500", "700"],
-  variable: "--font-caveat",
+  weight: "400",
+  variable: "--font-madi",
   display: "swap",
 });
 
@@ -50,23 +50,23 @@ export const metadata: Metadata = {
     title: "Let Me Polish You — AIESEC in Poland",
     description: SITE.description,
   },
-  icons: { icon: "/brand/human-blue.png", apple: "/brand/human-blue.png" },
+  
   robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#037ef3",
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${lato.variable} ${caveat.variable}`}>
+    <html lang="en" className={`${montserrat.variable} ${lato.variable} ${madi.variable}`}>
       <body className="min-h-dvh overflow-x-clip">
         <a
           href="#main"
-          className="btn btn-yellow sr-only z-[100] focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+          className="btn btn-red sr-only z-[100] focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
         >
           Skip to content
         </a>

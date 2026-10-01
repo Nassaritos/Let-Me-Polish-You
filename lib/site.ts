@@ -7,10 +7,11 @@ export const SITE = {
 };
 
 export const NAV_LINKS = [
-  { href: "/opportunities", label: "Explore" },
-  { href: "/#poland", label: "Poland" },
-  { href: "/programs", label: "Programs" },
-  { href: "/about", label: "About AIESEC" },
+  { href: "/global-volunteer", label: "Global Volunteer" },
+  { href: "/global-talent", label: "Global Talent" },
+  { href: "/global-teacher", label: "Global Teacher" },
+  { href: "/poland", label: "Life in Poland" },
+  { href: "/about", label: "What's AIESEC?" },
 ] as const;
 
 /** Official AIESEC in Poland channels (as linked from aiesec.pl). */

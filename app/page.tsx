@@ -1,15 +1,17 @@
 import { Hero } from "@/components/hero/Hero";
 import { PolandMarquee } from "@/components/home/PolandMarquee";
-import { ProgramChooser } from "@/components/programs/ProgramChooser";
+
+import { ExperienceChooser } from "@/components/programs/ExperienceChooser";
+import { LiveNow } from "@/components/home/LiveNow";
 import { PolandLife } from "@/components/home/PolandLife";
+import { LocalTeams } from "@/components/about/LocalTeams";
 import { WhereCouldYouGo } from "@/components/cities/WhereCouldYouGo";
 import { PolandMapBase } from "@/components/map/PolandMapBase";
-import { LiveNow } from "@/components/home/LiveNow";
-import { AboutAiesec } from "@/components/about/AboutAiesec";
+import { getPlacePhotos } from "@/lib/place-photos";
 import { Stories } from "@/components/stories/Stories";
 import { FinalCta } from "@/components/home/FinalCta";
 import { GisNotice } from "@/components/ui/GisNotice";
-import { computeStats, getPolandOpportunities, summarizeCities } from "@/lib/gis/opportunities";
+import { computeStats, countByLc, getActiveLocalCommittees, getPolandOpportunities, summarizeCities } from "@/lib/gis/opportunities";
 import { toSummary } from "@/lib/gis/normalize";
 import { PROGRAMS } from "@/lib/programs";
 import type { OpportunitySummary } from "@/lib/types";
@@ -33,43 +35,38 @@ function pickFeatured(all: OpportunitySummary[], n = 6): OpportunitySummary[] {
   return out;
 }
 
+/**
+ * Home — the journey in order:
+ * 1 what this is → 2 choose an experience → 3 see live projects →
+ * 4 see where they are → 5 imagine life in Poland → 6 meet the people who host you → apply.
+ */
 export default async function HomePage() {
-  const result = await getPolandOpportunities();
+  const [result, teams] = await Promise.all([getPolandOpportunities(), getActiveLocalCommittees()]);
   const stats = result.ok ? computeStats(result.data) : null;
-  const places = result.ok ? summarizeCities(result.data) : [];
   const summaries = result.ok ? result.data.map(toSummary) : [];
+  const places = result.ok ? summarizeCities(result.data) : [];
+  const photos = await getPlacePhotos(places.filter((c) => c.available > 0));
 
   return (
     <>
-      <Hero
-        live={
-          stats
-            ? {
-                available: stats.available,
-                places: stats.cities,
-                byProgram: { igv: stats.byProgram.igv.available, igta: stats.byProgram.igta.available, igte: stats.byProgram.igte.available },
-              }
-            : null
-        }
-      />
-      <PolandMarquee />
-      <ProgramChooser
+      <Hero live={stats ? { available: stats.available, places: stats.cities } : null} />
+            <PolandMarquee />
+
+      <ExperienceChooser
         counts={stats ? { igv: stats.byProgram.igv.available, igta: stats.byProgram.igta.available, igte: stats.byProgram.igte.available } : null}
       />
-
       {result.ok ? (
         <>
           <LiveNow items={pickFeatured(summaries)} total={stats?.available ?? 0} fetchedAt={result.fetchedAt} stale={result.stale} />
-          <WhereCouldYouGo base={<PolandMapBase tone="dark" />} places={places} />
+          <WhereCouldYouGo base={<PolandMapBase tone="dark" />} places={places} photos={photos} />
         </>
       ) : (
         <section className="frame bg-white py-20">
           <GisNotice reason={result.reason} />
         </section>
       )}
-
-      <PolandLife />
-      <AboutAiesec />
+      <PolandLife variant="teaser" />
+      <LocalTeams teams={teams} counts={result.ok ? countByLc(result.data) : undefined} />
       <Stories />
       <FinalCta />
     </>

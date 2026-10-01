@@ -18,8 +18,8 @@ export function LiveStamp({ fetchedAt, stale, className = "" }: { fetchedAt: str
   return (
     <p className={`eyebrow flex items-center gap-2 text-grey ${className}`}>
       <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
-        {!stale && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-60 motion-reduce:hidden" />}
-        <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${stale ? "bg-grey" : "bg-green"}`} />
+        {!stale && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red opacity-60 motion-reduce:hidden" />}
+        <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${stale ? "bg-grey" : "bg-red"}`} />
       </span>
       <span>
         {stale ? "Last update received" : "Live opportunities"}

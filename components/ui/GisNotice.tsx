@@ -1,5 +1,4 @@
 import { EXTERNAL } from "@/lib/site";
-import { Rosette } from "@/components/brand/Rosette";
 import { RetryButton } from "./RetryButton";
 
 /**
@@ -9,23 +8,22 @@ import { RetryButton } from "./RetryButton";
 export function GisNotice({ reason, className = "" }: { reason: "unconfigured" | "unavailable"; className?: string }) {
   const dev = reason === "unconfigured" && process.env.NODE_ENV !== "production";
   return (
-    <div role="status" className={`on-light relative overflow-hidden rounded-[1.75rem] bg-mist p-8 text-navy md:p-12 ${className}`}>
-      <Rosette color="#e6ebf2" hole="#f5f5f5" className="pointer-events-none absolute -right-16 -top-16 h-64 w-64" />
-      <p className="eyebrow relative text-gv-ink">Live opportunities are taking a break</p>
-      <p className="display relative mt-3 max-w-2xl text-[clamp(2rem,4vw,3.4rem)]">Something went wrong while loading opportunities.</p>
-      <p className="relative mt-4 max-w-xl text-[1.05rem] leading-relaxed text-grey">
+    <div role="status" className={`relative overflow-hidden rounded-2xl border-2 border-line bg-white p-8 text-ink md:p-12 ${className}`}>
+      <p className="script text-4xl text-red">oops…</p>
+      <p className="display mt-2 max-w-2xl text-[clamp(1.8rem,3.6vw,3rem)]">Something went wrong while loading opportunities.</p>
+      <p className="mt-4 max-w-xl text-[1.05rem] leading-relaxed text-grey">
         It&apos;s on our side, not yours. Try again in a moment — or browse every AIESEC opportunity on{" "}
-        <a className="font-bold text-blue-ink link-underline" href={EXTERNAL.aiesecGlobal} target="_blank" rel="noopener noreferrer">
+        <a className="font-bold text-red-ink link-underline" href={EXTERNAL.aiesecGlobal} target="_blank" rel="noopener noreferrer">
           aiesec.org
         </a>
         .
       </p>
       {dev && (
-        <p className="relative mt-4 max-w-xl rounded-lg bg-white px-4 py-3 font-mono text-[0.8rem]">
+        <p className="mt-4 max-w-xl rounded-lg bg-mist px-4 py-3 font-mono text-[0.8rem]">
           Developer note: GIS_TOKEN is not set. Add it to .env.local (see .env.example) and restart the dev server.
         </p>
       )}
-      <RetryButton className="relative mt-8" />
+      <RetryButton className="mt-8" />
     </div>
   );
 }

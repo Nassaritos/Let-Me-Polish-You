@@ -1,4 +1,4 @@
-import { isProgram, type Program } from "./programs";
+import { PROGRAM_INFO, programFromParam, type Program } from "./programs";
 import type { OpportunitySummary } from "./types";
 
 /**
@@ -41,12 +41,12 @@ function get(p: Params, k: string): string | undefined {
 }
 
 export function parseFilters(p: Params): Filters {
-  const program = get(p, "program")?.toLowerCase();
+  const program = programFromParam(get(p, "program"));
   const duration = get(p, "duration");
   const start = get(p, "start");
   const sdg = Number(get(p, "sdg"));
   return {
-    program: isProgram(program) ? program : "all",
+    program: program ?? "all",
     q: (get(p, "q") ?? "").slice(0, 80),
     city: get(p, "city")?.toLowerCase().replace(/[^a-z0-9-]/g, "") || null,
     duration: DURATION_BUCKETS.some((b) => b.id === duration) ? (duration as DurationBucket) : null,
@@ -56,9 +56,10 @@ export function parseFilters(p: Params): Filters {
   };
 }
 
-export function filtersToQuery(f: Filters): string {
+/** `lockedProgram`: on a program page the program is the page itself, not a query param. */
+export function filtersToQuery(f: Filters, lockedProgram?: Program): string {
   const q = new URLSearchParams();
-  if (f.program !== "all") q.set("program", f.program);
+  if (f.program !== "all" && !lockedProgram) q.set("program", PROGRAM_INFO[f.program].slug);
   if (f.city) q.set("city", f.city);
   if (f.q.trim()) q.set("q", f.q.trim());
   if (f.duration) q.set("duration", f.duration);

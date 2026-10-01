@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { PROGRAMS, PROGRAM_INFO, type Program } from "../programs";
 import type { CitySummary, GisResult, Opportunity, OpportunitySummary } from "../types";
+import { LOCAL_COMMITTEES, lcFromGisName, type LocalCommittee } from "../lcs";
 import { GisError, gisRequest } from "./client";
 import { GIS_MAX_PAGES, GIS_PAGE_SIZE, POLAND_COMMITTEE_ID } from "./config";
 import { committeeIds, normalizeOpportunity, toSummary } from "./normalize";
@@ -325,3 +326,41 @@ export function computeStats(opps: Opportunity[] | OpportunitySummary[]): Stats 
   }
   return { available, openings, openingsKnown, cities: cities.size, byProgram };
 }
+
+/** Live (open) opportunities per local committee key. */
+export function countByLc(opps: Opportunity[]): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const o of opps) if (o.availability === "open" && o.hostLcKey) out[o.hostLcKey] = (out[o.hostLcKey] ?? 0) + 1;
+  return out;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Local committees                                                          */
+/* ------------------------------------------------------------------------ */
+
+/** Snapshot (Oct 2026) used only if GIS can't be reached. */
+const CLOSED_FALLBACK = ["rzeszow", "szczecin", "wroclaw-ut"];
+
+/**
+ * Local teams that are currently active. GIS marks closed committees with
+ * "(Closed)" in their name; those are hidden everywhere on the site.
+ */
+export const getActiveLocalCommittees = cache(async (): Promise<LocalCommittee[]> => {
+  try {
+    const res = await gisRequest<{ committee: { suboffices: { name: string }[] | null } | null }>(
+      `query { committee(id: ${POLAND_COMMITTEE_ID}) { suboffices { name } } }`,
+      { revalidate: 60 * 60 * 24 },
+    );
+    const offices = res.data?.committee?.suboffices;
+    if (!offices?.length) throw new Error("no suboffices");
+    const open = new Set<string>();
+    for (const o of offices) {
+      if (/closed/i.test(o.name)) continue;
+      const lc = lcFromGisName(o.name);
+      if (lc) open.add(lc.key);
+    }
+    return LOCAL_COMMITTEES.filter((lc) => open.has(lc.key));
+  } catch {
+    return LOCAL_COMMITTEES.filter((lc) => !CLOSED_FALLBACK.includes(lc.key));
+  }
+});

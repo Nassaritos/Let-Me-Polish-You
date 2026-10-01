@@ -9,7 +9,7 @@ export interface MapPoint {
   lat: number;
   lng: number;
   count: number;
-  /** Fill colour (programme colour, or brand blue for mixed places) */
+  /** Fill colour: product colour, or ink for places with several products */
   color?: string;
   description?: string;
   approximate?: boolean;
@@ -32,8 +32,8 @@ interface PolandMapProps {
 /** Poland with live opportunity locations. Every marker is a keyboard-accessible button. */
 export function PolandMap({ base, points, selected, highlighted, onSelect, onHighlight, tone = "light", className = "", title }: PolandMapProps) {
   const max = Math.max(1, ...points.map((p) => p.count));
-  const text = tone === "dark" ? "#ffffff" : "#0a1f44";
-  const halo = tone === "dark" ? "#0a1f44" : "#ffffff";
+  const text = tone === "dark" ? "#ffffff" : "#151515";
+  const halo = tone === "dark" ? "#151515" : "#ffffff";
   // Draw small markers last so they stay clickable on top of big ones.
   const ordered = [...points].sort((a, b) => b.count - a.count);
 
@@ -73,16 +73,24 @@ export function PolandMap({ base, points, selected, highlighted, onSelect, onHig
               onBlur={() => onHighlight?.(null)}
             >
               <circle cx={x} cy={y} r={Math.max(r, 20)} fill="transparent" />
-              <circle className="ring opacity-0 transition-opacity" cx={x} cy={y} r={r + 8} fill="none" stroke="#ffc845" strokeWidth={4} />
-              <circle cx={x} cy={y} r={r} fill={p.color ?? "#037ef3"} stroke={halo} strokeWidth={3} opacity={p.approximate ? 0.85 : 1} />
+              <circle
+                className={`ring transition-opacity ${active ? "opacity-100" : "opacity-0"}`}
+                cx={x}
+                cy={y}
+                r={r + 7}
+                fill="none"
+                stroke={tone === "dark" ? "#ffffff" : "#151515"}
+                strokeWidth={4}
+              />
+              <circle cx={x} cy={y} r={r} fill={p.color ?? "#fc3a3a"} stroke={halo} strokeWidth={3} opacity={p.approximate ? 0.85 : 1} />
               {r > 15 && (
                 <text
                   x={x}
                   y={y}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fill="#0a1f44"
-                  style={{ font: `800 ${Math.max(15, r * 0.8)}px var(--font-bricolage)`, pointerEvents: "none" }}
+                  fill={(p.color ?? "#fc3a3a") === "#151515" ? "#ffffff" : "#151515"}
+                  style={{ font: `900 ${Math.max(14, r * 0.72)}px var(--font-montserrat)`, pointerEvents: "none" }}
                 >
                   {p.count}
                 </text>
@@ -94,7 +102,7 @@ export function PolandMap({ base, points, selected, highlighted, onSelect, onHig
                   dominantBaseline="central"
                   fill={text}
                   style={{
-                    font: `800 ${active ? 34 : 28}px var(--font-bricolage)`,
+                    font: `900 ${active ? 32 : 26}px var(--font-montserrat)`,
                     pointerEvents: "none",
                     paintOrder: "stroke",
                     stroke: halo,

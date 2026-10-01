@@ -60,6 +60,8 @@ export interface Opportunity {
   coordinatesApproximate?: boolean;
   organisation?: string;
   hostLc?: string;
+  /** Key of the matching AIESEC in Poland local committee (see lib/lcs.ts) */
+  hostLcKey?: string;
 
   description?: string;
   projectDescription?: string;
@@ -108,6 +110,7 @@ export interface OpportunitySummary {
   citySlug?: string;
   coordinates?: { lat: number; lng: number };
   organisation?: string;
+  hostLcKey?: string;
   excerpt?: string;
   durationWeeks?: { min?: number; max?: number; label?: string };
   openings?: number;

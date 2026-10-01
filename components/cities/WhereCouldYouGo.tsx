@@ -4,24 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
-import { PROGRAMS, PROGRAM_INFO, type Program } from "@/lib/programs";
+import { PROGRAMS, PROGRAM_INFO, programHref, type Program } from "@/lib/programs";
 import { PROGRAM_STYLE, placeColor } from "@/lib/program-style";
-import { cityPhoto } from "@/lib/images";
 import type { CitySummary } from "@/lib/types";
+import type { PlacePhoto } from "@/lib/place-photos";
 import { PolandMap, type MapPoint } from "@/components/map/PolandMap";
 import { ProgramPills } from "@/components/filters/ProgramPills";
-import { Rosette } from "@/components/brand/Rosette";
+import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Arrow } from "@/components/ui/Arrow";
 
-export function WhereCouldYouGo({ base, places }: { base: React.ReactNode; places: CitySummary[] }) {
+export function WhereCouldYouGo({ base, places, photos }: { base: React.ReactNode; places: CitySummary[]; photos: Record<string, PlacePhoto> }) {
   const [program, setProgram] = useState<Program | "all">("all");
   const countFor = (c: CitySummary) => (program === "all" ? c.available : c.byProgram[program]);
 
   const visible = useMemo(
-    () =>
-      places
-        .filter((c) => countFor(c) > 0)
-        .sort((a, b) => countFor(b) - countFor(a) || a.name.localeCompare(b.name)),
+    () => places.filter((c) => countFor(c) > 0).sort((a, b) => countFor(b) - countFor(a) || a.name.localeCompare(b.name)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [places, program],
   );
@@ -46,25 +43,23 @@ export function WhereCouldYouGo({ base, places }: { base: React.ReactNode; place
       lat: c.coordinates!.lat,
       lng: c.coordinates!.lng,
       count: countFor(c),
-      color: placeColor(c.byProgram, program),
+      // mixed places are white on the dark map
+      color: placeColor(c.byProgram, program) === "#151515" ? "#ffffff" : placeColor(c.byProgram, program),
       labelled: i < 5,
       description: `${countFor(c)} live ${countFor(c) === 1 ? "opportunity" : "opportunities"}`,
     }));
 
-  const photo = cityPhoto(current?.slug);
-  const exploreHref = (slug: string) => `/opportunities?city=${slug}${program !== "all" ? `&program=${program}` : ""}`;
+  const photo = current ? photos[current.slug] : undefined;
+  const exploreHref = (slug: string) => (program === "all" ? `/opportunities?city=${slug}` : `${programHref(program)}?city=${slug}`);
 
   return (
-    <section id="places" aria-labelledby="places-title" className="relative overflow-hidden bg-navy py-24 text-white md:py-32">
+    <section id="places" aria-labelledby="places-title" className="on-dark relative overflow-hidden bg-ink py-20 text-white md:py-28">
       <div className="frame grid gap-6 md:grid-cols-12 md:items-end">
         <div className="md:col-span-7">
-          <p className="eyebrow text-yellow">Big cities. Small towns.</p>
-          <h2 id="places-title" className="display mt-3 text-[clamp(2.8rem,7vw,6.8rem)]">
-            Where could <span className="text-yellow">you</span> go?
-          </h2>
+          <SectionTitle id="places-title" tone="white" script="big cities, small towns" before="Where could" swoosh="you" after="go?" />
         </div>
         <div className="md:col-span-5">
-          <p className="text-[1.1rem] leading-relaxed text-white/80">
+          <p className="text-[1.08rem] leading-relaxed text-white/80">
             Every dot is a place with live projects right now — {placeCount} {placeCount === 1 ? "place" : "places"} today. Tap one
             to see what&apos;s there.
           </p>
@@ -73,7 +68,7 @@ export function WhereCouldYouGo({ base, places }: { base: React.ReactNode; place
       </div>
 
       {visible.length === 0 ? (
-        <p className="frame mt-12 text-lg text-white/80">No live projects for this program right now — try another one.</p>
+        <p className="frame mt-12 text-lg text-white/80">No live projects for this experience right now — try another one.</p>
       ) : (
         <div className="frame mt-12 grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7">
@@ -87,14 +82,14 @@ export function WhereCouldYouGo({ base, places }: { base: React.ReactNode; place
               onHighlight={setHighlighted}
               title="Map of Poland with places that have live AIESEC opportunities"
             />
-            <p className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/70">
+            <p className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/75">
               {PROGRAMS.map((p) => (
                 <span key={p} className="flex items-center gap-2">
-                  <span className={`h-3 w-3 rounded-full ${PROGRAM_STYLE[p].bg}`} aria-hidden="true" /> {PROGRAM_INFO[p].code}
+                  <span className={`h-3 w-3 rounded-full ${PROGRAM_STYLE[p].bg}`} aria-hidden="true" /> {PROGRAM_INFO[p].name}
                 </span>
               ))}
               <span className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-yellow" aria-hidden="true" /> mixed
+                <span className="h-3 w-3 rounded-full bg-white" aria-hidden="true" /> More than one
               </span>
             </p>
           </div>
@@ -107,37 +102,43 @@ export function WhereCouldYouGo({ base, places }: { base: React.ReactNode; place
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.35 }}
-                  className="relative overflow-hidden rounded-[1.75rem] bg-white text-navy"
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden rounded-2xl bg-white text-ink"
                   aria-live="polite"
                 >
-                  <div className="relative h-44 overflow-hidden bg-blue">
-                    {photo ? (
-                      <Image src={photo.src} alt={photo.alt} fill placeholder="blur" sizes="480px" className="object-cover" style={{ objectPosition: photo.position }} />
-                    ) : (
-                      <Rosette color="#1b8cf6" hole="#037ef3" className="absolute -right-10 -top-16 h-72 w-72" />
-                    )}
-                    <p className="display absolute bottom-4 left-5 text-4xl text-white drop-shadow-[0_2px_12px_rgba(10,31,68,0.6)]">{current.name}</p>
-                  </div>
+                  {photo && (
+                    <figure className="relative h-48 overflow-hidden bg-mist">
+                      <Image src={photo.src} alt={photo.alt} fill sizes="480px" className="object-cover" style={{ objectPosition: photo.position }} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" aria-hidden="true" />
+                      <p className="display-caps absolute bottom-7 left-5 right-5 text-3xl text-white">{current.name}</p>
+                      <figcaption className="absolute bottom-2 left-5 right-5 truncate text-[0.68rem] text-white/80">
+                        {photo.illustrative ? (
+                          "Illustrative photo of Poland"
+                        ) : photo.credit ? (
+                          <a href={photo.credit.source} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                            Photo: {photo.credit.author} · {photo.credit.license} · Wikimedia Commons
+                          </a>
+                        ) : null}
+                      </figcaption>
+                    </figure>
+                  )}
                   <div className="p-5">
-                    <dl className="grid grid-cols-3 gap-3">
-                      {PROGRAMS.map((p) => (
-                        <div key={p} className={`rounded-xl p-3 ${PROGRAM_STYLE[p].soft}`}>
-                          <dt className="eyebrow">{PROGRAM_INFO[p].code}</dt>
-                          <dd className="display mt-1 text-3xl tabular-nums">{current.byProgram[p]}</dd>
-                        </div>
+                    <ul className="space-y-1.5">
+                      {PROGRAMS.filter((p) => current.byProgram[p] > 0).map((p) => (
+                        <li key={p} className="flex items-center justify-between font-bold">
+                          <span className="flex items-center gap-2">
+                            <span className={`h-3 w-3 rounded-full ${PROGRAM_STYLE[p].bg}`} aria-hidden="true" />
+                            {PROGRAM_INFO[p].name}
+                          </span>
+                          <span className={`tabular-nums ${PROGRAM_STYLE[p].ink}`}>{current.byProgram[p]} live</span>
+                        </li>
                       ))}
-                    </dl>
-                    {current.openings > 0 && (
-                      <p className="mt-3 font-bold text-grey">
-                        {current.openings} open {current.openings === 1 ? "spot" : "spots"} right now
-                      </p>
-                    )}
+                    </ul>
                     <div className="mt-5 flex flex-wrap gap-3">
-                      <Link href={exploreHref(current.slug)} className="btn btn-primary">
+                      <Link href={exploreHref(current.slug)} className="btn btn-red">
                         See projects <Arrow />
                       </Link>
-                      <Link href={`/cities/${current.slug}`} className="btn btn-ghost text-navy hover:bg-navy hover:text-white">
+                      <Link href={`/cities/${current.slug}`} className="btn btn-ghost text-ink hover:bg-ink hover:text-white">
                         About {current.name}
                       </Link>
                     </div>
@@ -155,7 +156,7 @@ export function WhereCouldYouGo({ base, places }: { base: React.ReactNode; place
                     onMouseEnter={() => setHighlighted(c.slug)}
                     onMouseLeave={() => setHighlighted(null)}
                     aria-pressed={current?.slug === c.slug}
-                    className={`chip transition-colors ${current?.slug === c.slug ? "bg-yellow text-navy" : "bg-white/10 text-white hover:bg-white/20"}`}
+                    className={`chip transition-colors ${current?.slug === c.slug ? "bg-white text-ink" : "bg-white/10 text-white hover:bg-white/20"}`}
                   >
                     {c.name} <span className="tabular-nums opacity-80">{countFor(c)}</span>
                   </button>

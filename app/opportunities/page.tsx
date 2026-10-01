@@ -3,26 +3,21 @@ import { Explorer } from "@/components/opportunities/Explorer";
 import { PolandMapBase } from "@/components/map/PolandMapBase";
 import { GisNotice } from "@/components/ui/GisNotice";
 import { LiveStamp } from "@/components/ui/LiveStamp";
-import { Rosette } from "@/components/brand/Rosette";
+import { SectionTitle } from "@/components/ui/SectionTitle";
 import { getOpportunitySummaries } from "@/lib/gis/opportunities";
 import { parseFilters } from "@/lib/filters";
-import { PROGRAM_INFO, isProgram } from "@/lib/programs";
+import { PROGRAM_INFO, programFromParam } from "@/lib/programs";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
-  const p = (await searchParams).program;
-  const program = typeof p === "string" && isProgram(p) ? PROGRAM_INFO[p] : null;
-  const title = program ? `${program.code} ${program.name} opportunities in Poland` : "Live opportunities in Poland";
+  const p = programFromParam((await searchParams).program);
+  const program = p ? PROGRAM_INFO[p] : null;
+  const title = program ? `${program.name} opportunities in Poland` : "All opportunities in Poland";
   const description = program
     ? `${program.tagline} Browse live ${program.name} opportunities hosted by AIESEC in Poland.`
-    : "Browse live Global Volunteer, Global Talent and Global Teacher opportunities hosted by AIESEC in Poland.";
-  return {
-    title,
-    description,
-    alternates: { canonical: program ? `/opportunities?program=${program.id}` : "/opportunities" },
-    openGraph: { title, description, url: "/opportunities" },
-  };
+    : "Browse every live Global Volunteer, Global Talent and Global Teacher opportunity hosted by AIESEC in Poland.";
+  return { title, description, alternates: { canonical: "/opportunities" }, openGraph: { title, description, url: "/opportunities" } };
 }
 
 export default async function OpportunitiesPage({ searchParams }: { searchParams: SearchParams }) {
@@ -33,19 +28,15 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
 
   return (
     <>
-      <header className="relative overflow-hidden bg-blue pb-12 pt-32 text-white md:pb-16 md:pt-40">
-        <Rosette color="#1b8cf6" hole="#037ef3" className="pointer-events-none absolute -right-24 -top-24 h-[30rem] w-[30rem]" />
-        <div className="frame relative">
-          <p className="hand text-[clamp(1.6rem,2.6vw,2.2rem)] text-yellow">real projects, real dates —</p>
-          <h1 className="display-tight text-[clamp(3.4rem,9vw,8.5rem)]">
-            Where could <span className="text-yellow">you</span> go?
-          </h1>
+      <header className="bg-white pb-10 pt-28 md:pb-12 md:pt-36">
+        <div className="frame flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <SectionTitle as="h1" size="xl" script="every project, one place" before="All" swoosh="opportunities" />
           {result.ok && (
-            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <p className="text-[1.2rem] font-bold">
-                {open.length} live {open.length === 1 ? "opportunity" : "opportunities"} in {places} {places === 1 ? "place" : "places"} across Poland.
+            <div className="md:pb-3 md:text-right">
+              <p className="text-[1.15rem] font-bold">
+                {open.length} live in {places} {places === 1 ? "place" : "places"} across Poland
               </p>
-              <LiveStamp fetchedAt={result.fetchedAt} stale={result.stale} className="!text-white/85" />
+              <LiveStamp fetchedAt={result.fetchedAt} stale={result.stale} className="mt-2 md:justify-end" />
             </div>
           )}
         </div>

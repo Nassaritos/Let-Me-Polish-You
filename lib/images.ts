@@ -25,11 +25,14 @@ import juwenaliaCrowd from "@/public/images/youth/juwenalia-crowd.jpg";
 import juwenaliaConcert from "@/public/images/youth/juwenalia-concert.jpg";
 import warsawBoulevards from "@/public/images/youth/warsaw-boulevards.jpg";
 import krakowNight from "@/public/images/youth/krakow-boulevards-night.jpg";
+import exchangeThankYou from "@/public/images/stories/thank-you-card.jpg";
+import exchangeTeaching from "@/public/images/stories/teaching-characters.jpg";
 
 /**
  * Every photograph used on the site, with its licence and attribution.
  * Components import from here — never hard-code image paths elsewhere.
- * All images are from Wikimedia Commons under the licence listed.
+ * Images are from Wikimedia Commons under the licence listed, except the
+ * exchange photos provided by AIESEC in Poland.
  */
 
 export interface Credit {
@@ -182,6 +185,18 @@ export const PHOTOS = {
     alt: "Kraków's Vistula boulevards at night with lights reflected in the river",
     credit: { author: "ViktoriaLi", license: "CC BY-SA 4.0", licenseUrl: BYSA4, source: "https://commons.wikimedia.org/wiki/File:Bulwary_Wi%C5%9Blane_w_Krakowie_noc%C4%85.jpg" },
   },
+  exchangeThankYou: {
+    src: exchangeThankYou,
+    alt: "An exchange participant surrounded by laughing children holding up a hand-made card",
+    position: "50% 40%",
+    credit: { author: "AIESEC in Poland", license: "Used with permission", source: "https://aiesec.pl" },
+  },
+  exchangeTeaching: {
+    src: exchangeTeaching,
+    alt: "An exchange participant teaching children sitting on a classroom carpet",
+    position: "50% 35%",
+    credit: { author: "AIESEC in Poland", license: "Used with permission", source: "https://aiesec.pl" },
+  },
 } satisfies Record<string, Photo>;
 
 export type PhotoKey = keyof typeof PHOTOS;
@@ -189,7 +204,7 @@ export type PhotoKey = keyof typeof PHOTOS;
 export const PROGRAM_PHOTOS: Record<Program, { primary: Photo; secondary: Photo }> = {
   igv: { primary: PHOTOS.workshopOrigami, secondary: PHOTOS.juwenaliaCrowd },
   igta: { primary: PHOTOS.warsawVistula, secondary: PHOTOS.warsawBoulevards },
-  igte: { primary: PHOTOS.workshopTeacher, secondary: PHOTOS.classroomVr },
+  igte: { primary: PHOTOS.exchangeTeaching, secondary: PHOTOS.workshopTeacher },
 };
 
 /** Photography for known cities, keyed by city slug. */

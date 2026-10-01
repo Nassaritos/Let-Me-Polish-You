@@ -4,16 +4,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { compareOpportunities, getOpportunityById, getPolandOpportunities } from "@/lib/gis/opportunities";
 import { toSummary } from "@/lib/gis/normalize";
-import { PROGRAM_INFO } from "@/lib/programs";
-import { PROGRAM_STYLE } from "@/lib/program-style";
+import { PROGRAM_INFO, programHref, type ProgramInfo } from "@/lib/programs";
 import { PROGRAM_PHOTOS, cityPhoto } from "@/lib/images";
+import { lcByKey } from "@/lib/lcs";
 import { SDG_COLORS, sdgName } from "@/lib/sdg";
 import type { LogisticsItem, Opportunity, SkillLike } from "@/lib/types";
-import type { ProgramInfo } from "@/lib/programs";
 import { formatDate, formatDuration, formatMonth, formatSalary } from "@/lib/utils/format";
 import { paragraphs } from "@/lib/utils/text";
-import { ProgramLogo } from "@/components/brand/ProgramLogo";
-import { Rosette } from "@/components/brand/Rosette";
+import { ProductLogo } from "@/components/brand/ProductLogo";
+import { PROGRAM_STYLE } from "@/lib/program-style";
 import { AvailabilityBadge, OpportunityCard } from "@/components/opportunities/OpportunityCard";
 import { PolandMap } from "@/components/map/PolandMap";
 import { PolandMapBase } from "@/components/map/PolandMapBase";
@@ -31,7 +30,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const o = res.data;
   const info = PROGRAM_INFO[o.program];
   const where = o.city ?? "Poland";
-  const title = `${o.title} — ${info.code} opportunity in ${where}`;
+  const title = `${o.title} — ${info.name} in ${where}`;
   const description =
     (o.description ?? o.projectDescription ?? info.tagline).replace(/\s+/g, " ").slice(0, 155) ||
     `${info.name} opportunity in ${where}, Poland, hosted by AIESEC in Poland.`;
@@ -54,14 +53,20 @@ function logisticsText(item?: LogisticsItem): string | undefined {
 }
 
 function ApplyButton({ o, info, className = "" }: { o: Opportunity; info: ProgramInfo; className?: string }) {
+  const style = PROGRAM_STYLE[o.program];
   return o.availability === "open" ? (
-    <a href={o.aiesecUrl} target="_blank" rel="noopener noreferrer" className={`btn btn-yellow !py-4 text-[1.05rem] ${className}`}>
+    <a
+      href={o.aiesecUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`btn ${style.bg} !py-4 text-[1.05rem] text-ink shadow-[0_5px_0_rgba(0,0,0,0.22)] hover:bg-ink hover:text-white ${className}`}
+    >
       Apply on aiesec.org <Arrow direction="up-right" />
       <span className="sr-only">(opens in a new tab)</span>
     </a>
   ) : (
-    <Link href={`/opportunities?program=${o.program}`} className={`btn btn-white !py-4 ${className}`}>
-      See open {info.code} projects <Arrow />
+    <Link href={programHref(o.program)} className={`btn btn-ink !py-4 ${className}`}>
+      See open {info.name} projects <Arrow />
     </Link>
   );
 }
@@ -69,8 +74,8 @@ function ApplyButton({ o, info, className = "" }: { o: Opportunity; info: Progra
 function Section({ title, eyebrow, children, id }: { title: string; eyebrow?: string; children: React.ReactNode; id?: string }) {
   return (
     <section aria-labelledby={id} className="border-t-2 border-line pt-10">
-      {eyebrow && <p className="eyebrow text-blue-ink">{eyebrow}</p>}
-      <h2 id={id} className="display mt-2 text-[clamp(2rem,3.6vw,3rem)]">
+      {eyebrow && <p className="eyebrow text-red-ink">{eyebrow}</p>}
+      <h2 id={id} className="display mt-2 text-[clamp(1.8rem,3.2vw,2.6rem)]">
         {title}
       </h2>
       <div className="mt-6">{children}</div>
@@ -83,7 +88,7 @@ function SkillChips({ items }: { items?: SkillLike[] }) {
   return (
     <ul className="flex flex-wrap gap-2">
       {items.map((s) => (
-        <li key={s.name} className={`chip ${s.option === "required" ? "bg-navy text-white" : "bg-mist text-navy"}`}>
+        <li key={s.name} className={`chip ${s.option === "required" ? "bg-ink text-white" : "bg-mist text-ink"}`}>
           {s.name}
           {s.option && <span className="text-[0.72rem] font-normal opacity-75">{s.option}</span>}
         </li>
@@ -98,17 +103,16 @@ export default async function OpportunityPage({ params }: { params: Params }) {
 
   if (!res.ok) {
     return (
-      <div className="bg-blue pt-28">
-        <section className="frame pb-20">
-          <GisNotice reason={res.reason} />
-        </section>
-      </div>
+      <section className="frame pb-20 pt-32">
+        <GisNotice reason={res.reason} />
+      </section>
     );
   }
   const o = res.data;
   if (!o) notFound();
 
   const info = PROGRAM_INFO[o.program];
+  const lc = lcByKey(o.hostLcKey);
   const style = PROGRAM_STYLE[o.program];
   const photo = cityPhoto(o.citySlug) ?? PROGRAM_PHOTOS[o.program].primary;
   const photoIsCity = Boolean(cityPhoto(o.citySlug));
@@ -128,7 +132,7 @@ export default async function OpportunityPage({ params }: { params: Params }) {
     : [];
 
   const facts: [string, string | undefined][] = [
-    ["Program", `${info.code} · ${info.name}`],
+    ["Experience", info.name],
     ["Host organisation", o.organisation],
     ["Location", o.location ?? o.city],
     ["Duration", duration],
@@ -137,7 +141,6 @@ export default async function OpportunityPage({ params }: { params: Params }) {
     ["Spots open", o.openings !== undefined ? String(o.openings) : undefined],
     ["Apply by", applyBy],
     ["Salary", salary],
-    ["AIESEC host committee", o.hostLc],
   ];
 
   const logistics: [string, string | undefined][] = [
@@ -175,28 +178,23 @@ export default async function OpportunityPage({ params }: { params: Params }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
 
       {/* Hero */}
-      <header className="relative overflow-hidden bg-navy pb-12 pt-28 text-white md:pb-16 md:pt-32">
-        <div className={`absolute inset-y-0 left-0 w-2 ${style.bg} md:w-3`} aria-hidden="true" />
-        <Rosette color={style.hex} hole="#0a1f44" variant={o.program === "igta" ? "star" : "flower"} className="pointer-events-none absolute -right-32 -top-20 h-[30rem] w-[30rem] opacity-25" />
-        <div className="frame relative grid gap-10 lg:grid-cols-12">
+      <header className="bg-white pb-12 pt-28 md:pb-16 md:pt-32">
+        <div className="frame grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7">
-            <Link href={`/opportunities?program=${o.program}`} className="font-bold text-white/80 hover:text-white">
-              ← All {info.code} opportunities
+            <Link href={programHref(o.program)} className="font-bold text-grey hover:text-red-ink">
+              ← All {info.name} projects
             </Link>
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <span className="rounded-full bg-white px-3 py-1.5">
-                <ProgramLogo program={o.program} height={24} />
-              </span>
-              <span className={`chip ${style.bg} text-navy`}>{info.verb}.</span>
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <ProductLogo program={o.program} height={40} />
               <AvailabilityBadge o={o} />
             </div>
-            {o.project && o.project !== o.title && <p className="eyebrow mt-6 text-yellow">{o.project}</p>}
-            <h1 className="display mt-4 text-[clamp(2.6rem,6.4vw,5.6rem)]">{o.title}</h1>
-            <p className="mt-4 text-[1.2rem] font-bold text-white/90">
+            {o.project && o.project !== o.title && <p className={`eyebrow mt-6 ${style.ink}`}>{o.project}</p>}
+            <h1 className="display mt-4 text-[clamp(2.4rem,5.6vw,4.8rem)]">{o.title}</h1>
+            <p className="mt-4 text-[1.15rem] font-bold text-ink-2">
               {[o.organisation, o.city ? `${o.city}, Poland` : "Poland"].filter(Boolean).join(" · ")}
             </p>
 
-            <dl className="mt-8 grid grid-cols-2 gap-4 rounded-2xl bg-white/10 p-5 sm:grid-cols-4">
+            <dl className="mt-8 grid grid-cols-2 gap-4 rounded-2xl bg-mist p-5 sm:grid-cols-4">
               {(
                 [
                   ["Duration", duration],
@@ -206,14 +204,14 @@ export default async function OpportunityPage({ params }: { params: Params }) {
                 ] as const
               ).map(([k, v]) => (
                 <div key={k}>
-                  <dt className="eyebrow !text-[0.68rem] text-white/60">{k}</dt>
-                  <dd className="mt-1 font-display text-xl font-bold">{v ?? "—"}</dd>
+                  <dt className="eyebrow !text-[0.66rem] text-grey">{k}</dt>
+                  <dd className="mt-1 font-display text-lg font-extrabold">{v ?? "—"}</dd>
                 </div>
               ))}
             </dl>
 
             {!open && (
-              <p role="status" className="mt-6 rounded-2xl bg-yellow p-4 font-bold text-navy">
+              <p role="status" className="mt-6 rounded-2xl bg-red-soft p-4 font-bold text-red-ink">
                 {o.availability === "full"
                   ? "This project is fully booked right now — no spots are open."
                   : "Applications for this project are closed."}{" "}
@@ -222,15 +220,17 @@ export default async function OpportunityPage({ params }: { params: Params }) {
             )}
             <div className="mt-8 hidden flex-wrap items-center gap-4 md:flex">
               <ApplyButton o={o} info={info} />
-              {open && <p className="max-w-xs text-sm text-white/75">You&apos;ll apply on the official AIESEC platform.</p>}
+              {open && <p className="max-w-xs text-sm text-grey">You&apos;ll apply on the official AIESEC platform.</p>}
             </div>
           </div>
 
           <figure className="lg:col-span-5">
-            <div className="photo relative aspect-[4/3] bg-navy-2 lg:aspect-[4/5]">
-              <Image src={photo.src} alt={photo.alt} fill priority placeholder="blur" sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover" style={{ objectPosition: photo.position }} />
+            <div className="label-box rotate-1 p-2.5">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[0.4rem] bg-mist lg:aspect-[4/5]">
+                <Image src={photo.src} alt={photo.alt} fill priority placeholder="blur" sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover" style={{ objectPosition: photo.position }} />
+              </div>
             </div>
-            <figcaption className="mt-2 text-sm text-white/60">
+            <figcaption className="mt-3 text-sm text-grey">
               {photoIsCity ? `${o.city} — photo of the city, not the project.` : `Illustrative photo — ${info.name}.`}
             </figcaption>
           </figure>
@@ -238,13 +238,13 @@ export default async function OpportunityPage({ params }: { params: Params }) {
       </header>
 
       {/* Body */}
-      <div className="on-light frame grid gap-12 py-14 lg:grid-cols-12 lg:py-20">
+      <div className="frame grid gap-12 border-t border-line py-14 lg:grid-cols-12 lg:py-20">
         <div className="space-y-14 lg:col-span-8">
           {o.program === "igv" && o.sdg?.goal && (
-            <div className="flex flex-col gap-5 rounded-[1.75rem] p-7 text-white sm:flex-row sm:items-center" style={{ background: SDG_COLORS[o.sdg.goal] }}>
+            <div className="flex flex-col gap-5 rounded-2xl p-7 text-white sm:flex-row sm:items-center" style={{ background: SDG_COLORS[o.sdg.goal] }}>
               <p className="display text-7xl">{o.sdg.goal}</p>
               <div>
-                <p className="eyebrow text-white/80">Your impact · UN Sustainable Development Goal {o.sdg.goal}</p>
+                <p className="eyebrow text-white/85">Your impact · UN Sustainable Development Goal {o.sdg.goal}</p>
                 <p className="display mt-1 text-3xl">{sdgName(o.sdg.goal)}</p>
                 {o.sdg.description && (
                   <p className="mt-2 text-[1.02rem] leading-relaxed text-white/90">
@@ -258,7 +258,7 @@ export default async function OpportunityPage({ params }: { params: Params }) {
 
           {(o.description || o.projectDescription) && (
             <Section title="The experience" eyebrow="About the project" id="about">
-              <div className="max-w-3xl space-y-4 text-[1.1rem] leading-relaxed text-navy/90">
+              <div className="max-w-3xl space-y-4 text-[1.08rem] leading-relaxed text-ink-2">
                 {paragraphs(o.description).map((p, i) => (
                   <p key={`d${i}`}>{p}</p>
                 ))}
@@ -282,11 +282,11 @@ export default async function OpportunityPage({ params }: { params: Params }) {
                 <ol className="grid gap-4 sm:grid-cols-2">
                   {o.weeklyPlan.map((w) => (
                     <li key={w.week} className="rounded-2xl bg-mist p-5">
-                      <p className={`chip ${style.bg} text-navy`}>Week {w.week}</p>
+                      <p className={`chip ${style.bg} text-ink`}>Week {w.week}</p>
                       <ul className="mt-3 space-y-2 text-[1rem] leading-snug">
                         {w.activities.map((a) => (
                           <li key={a} className="flex gap-2">
-                            <span aria-hidden="true" className="text-grey">—</span>
+                            <span aria-hidden="true" className={style.ink}>—</span>
                             {a}
                           </li>
                         ))}
@@ -295,7 +295,7 @@ export default async function OpportunityPage({ params }: { params: Params }) {
                   ))}
                 </ol>
               ) : (
-                <div className="max-w-3xl space-y-3 text-[1.08rem] leading-relaxed">
+                <div className="max-w-3xl space-y-3 text-[1.06rem] leading-relaxed text-ink-2">
                   {o.learningPoints!.map((p, i) => (
                     <p key={i}>{p}</p>
                   ))}
@@ -326,7 +326,7 @@ export default async function OpportunityPage({ params }: { params: Params }) {
                   </div>
                 ) : null}
               </div>
-              <p className="mt-4 text-sm text-grey">Dark = required, light = nice to have.</p>
+              <p className="mt-4 text-sm text-grey">Black = required, grey = nice to have.</p>
             </Section>
           )}
 
@@ -337,7 +337,7 @@ export default async function OpportunityPage({ params }: { params: Params }) {
                   const live = !s.status || /^(live|open|active)$/.test(s.status);
                   return (
                     <li key={s.id ?? i} className={`rounded-2xl p-5 ring-2 ring-inset ${live ? "bg-white ring-line" : "bg-mist ring-transparent opacity-70"}`}>
-                      <p className="display text-2xl">
+                      <p className="display text-xl">
                         {formatDate(s.start)} → {formatDate(s.end)}
                       </p>
                       <p className="mt-2 font-bold text-grey">
@@ -354,18 +354,18 @@ export default async function OpportunityPage({ params }: { params: Params }) {
 
           {o.coordinates && (
             <Section title="Where you'll be" eyebrow={o.city ?? "Poland"} id="where">
-              <div className="grid items-center gap-6 rounded-[1.75rem] bg-mist p-6 md:grid-cols-2">
+              <div className="grid items-center gap-6 rounded-2xl bg-mist p-6 md:grid-cols-2">
                 <PolandMap
                   base={<PolandMapBase />}
-                  points={[{ id: o.id, label: o.city ?? "Here", lat: o.coordinates.lat, lng: o.coordinates.lng, count: 1, color: style.hex, labelled: true }]}
+                  points={[{ id: o.id, label: o.city ?? "Here", lat: o.coordinates.lat, lng: o.coordinates.lng, count: 1, labelled: true }]}
                   title={`Map of Poland showing ${o.city ?? "the project location"}`}
                 />
                 <div>
-                  <p className="display text-3xl">{o.city ?? "Poland"}</p>
+                  <p className="display-caps text-3xl">{o.city ?? "Poland"}</p>
                   {o.location && <p className="mt-2 font-bold text-grey">{o.location}</p>}
                   {o.coordinatesApproximate && <p className="mt-2 text-sm text-grey">Approximate location (city centre) — GIS has no exact coordinates for this project.</p>}
                   {o.citySlug && (
-                    <Link href={`/cities/${o.citySlug}`} className="btn btn-ghost mt-5 text-navy hover:bg-navy hover:text-white">
+                    <Link href={`/cities/${o.citySlug}`} className="btn btn-ghost mt-5 text-ink hover:bg-ink hover:text-white">
                       Life in {o.city} <Arrow />
                     </Link>
                   )}
@@ -378,7 +378,7 @@ export default async function OpportunityPage({ params }: { params: Params }) {
         {/* Sidebar */}
         <aside className="lg:col-span-4">
           <div className="space-y-6 lg:sticky lg:top-24">
-            <div className="rounded-[1.75rem] bg-white p-6 ring-2 ring-inset ring-line">
+            <div className="rounded-2xl bg-white p-6 ring-2 ring-inset ring-line">
               <h2 className="display text-2xl">Your project</h2>
               <dl className="mt-4 divide-y divide-line">
                 {facts
@@ -393,7 +393,7 @@ export default async function OpportunityPage({ params }: { params: Params }) {
             </div>
 
             {hasLogistics && (
-              <div className={`rounded-[1.75rem] p-6 ${style.soft}`}>
+              <div className={`rounded-2xl ${style.soft} p-6`}>
                 <h2 className="display text-2xl">What&apos;s included</h2>
                 <p className="mt-1 text-sm text-grey">As listed by the host on AIESEC.</p>
                 <ul className="mt-4 space-y-3">
@@ -402,7 +402,7 @@ export default async function OpportunityPage({ params }: { params: Params }) {
                     .map(([k, v]) => (
                       <li key={k} className="flex items-start gap-3">
                         <span
-                          className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full text-sm font-bold ${v === "Not included" ? "bg-white text-grey" : "bg-navy text-white"}`}
+                          className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full text-sm font-bold ${v === "Not included" ? "bg-white text-grey" : `${style.bg} text-ink`}`}
                           aria-hidden="true"
                         >
                           {v === "Not included" ? "–" : "✓"}
@@ -418,8 +418,27 @@ export default async function OpportunityPage({ params }: { params: Params }) {
               </div>
             )}
 
+            {(lc || o.hostLc) && (
+              <div className="rounded-2xl bg-white p-6 ring-2 ring-inset ring-line">
+                <p className="eyebrow text-grey">Hosted by</p>
+                {lc ? (
+                  <>
+                    <Image src={lc.logo} alt={`AIESEC ${lc.name} — ${lc.tagline}`} className="mt-3 h-auto w-full max-w-[240px]" sizes="240px" />
+                    <p className="mt-2 text-sm text-grey">
+                      The AIESEC {lc.name} team prepares this project and looks after you while you&apos;re here.
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-2 font-bold">{o.hostLc}</p>
+                )}
+                <Link href="/about#teams" className="mt-3 inline-block text-sm font-bold text-red-ink link-underline">
+                  Meet the local teams
+                </Link>
+              </div>
+            )}
+
             {o.program !== "igv" && o.sdg?.goal && (
-              <div className="flex items-center gap-4 rounded-[1.75rem] bg-mist p-5">
+              <div className="flex items-center gap-4 rounded-2xl bg-mist p-5">
                 <span className="display grid h-14 w-14 shrink-0 place-items-center rounded-xl text-2xl text-white" style={{ background: SDG_COLORS[o.sdg.goal] }}>
                   {o.sdg.goal}
                 </span>
@@ -427,8 +446,8 @@ export default async function OpportunityPage({ params }: { params: Params }) {
               </div>
             )}
 
-            <div className="hidden rounded-[1.75rem] bg-blue p-6 text-white lg:block">
-              <p className="display text-2xl">{open ? "This could be you." : "This one's taken."}</p>
+            <div className="hidden rounded-2xl bg-ink p-6 text-white lg:block">
+              <p className={`script text-4xl ${style.text}`}>{open ? "this could be you" : "this one's taken"}</p>
               <ApplyButton o={o} info={info} className="mt-4 w-full" />
             </div>
           </div>
@@ -436,15 +455,15 @@ export default async function OpportunityPage({ params }: { params: Params }) {
       </div>
 
       {related.length > 0 && (
-        <section aria-labelledby="related-title" className="on-light bg-mist py-16 md:py-20">
+        <section aria-labelledby="related-title" className="bg-mist py-16 md:py-20">
           <div className="frame">
-            <h2 id="related-title" className="display text-[clamp(2rem,4vw,3.4rem)]">
-              {related.some((r) => r.citySlug === o.citySlug) && o.city ? `More in and around ${o.city}` : `More ${info.code} projects`}
+            <h2 id="related-title" className="display text-[clamp(1.8rem,3.6vw,3rem)]">
+              {related.some((r) => r.citySlug === o.citySlug) && o.city ? `More in and around ${o.city}` : `More ${info.name} projects`}
             </h2>
             <ul className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {related.map((r) => (
                 <li key={r.id}>
-                  <OpportunityCard o={r} hole="#f5f5f5" />
+                  <OpportunityCard o={r} hole="#f6f5f3" />
                 </li>
               ))}
             </ul>
@@ -453,7 +472,7 @@ export default async function OpportunityPage({ params }: { params: Params }) {
       )}
 
       {/* Mobile apply bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-navy/95 p-3 backdrop-blur md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 p-3 backdrop-blur md:hidden">
         <ApplyButton o={o} info={info} className="w-full" />
       </div>
       <div className="h-20 md:hidden" aria-hidden="true" />

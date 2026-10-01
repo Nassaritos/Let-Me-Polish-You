@@ -33,6 +33,14 @@ export const CITY_GUIDE: Record<string, { vibe: string; notes: string[] }> = {
     vibe: "Industrial roots, modern sound.",
     notes: ["Heart of the Silesian metropolis", "The Spodek arena, shaped like a flying saucer", "A strong live-music culture"],
   },
+  rzeszow: {
+    vibe: "Small city, big energy.",
+    notes: ["Capital of the Podkarpackie region in south-eastern Poland", "A compact Old Town around a lively market square", "Gateway to the Bieszczady mountains"],
+  },
+  szczecin: {
+    vibe: "Green port city in the north-west.",
+    notes: ["One of Poland's greenest cities, full of parks", "A port on the Oder river, close to the Baltic", "Near the German border — Berlin is a short trip away"],
+  },
   lublin: {
     vibe: "Eastern Poland's student capital.",
     notes: ["Several universities and a young population", "An atmospheric Old Town", "Festivals in the streets in summer"],

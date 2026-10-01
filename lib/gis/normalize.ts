@@ -1,6 +1,7 @@
 import "server-only";
 import { aiesecOpportunityUrl, programFromGis, type Program } from "../programs";
 import { cityCenter, inPoland, resolveCity, slugify } from "../cities";
+import { lcFromGisName } from "../lcs";
 import type { Availability, Logistics, LogisticsItem, Opportunity, OpportunitySummary, SkillLike, Slot, WeekPlan } from "../types";
 import { reflow, toPlainText } from "../utils/text";
 
@@ -292,7 +293,9 @@ export function normalizeOpportunity(raw: Raw, ctx: NormalizeContext = {}): Oppo
     coordinates,
     coordinatesApproximate,
     organisation,
-    hostLc: str(hostLcObj?.full_name) ?? str(hostLcObj?.name)?.replace(/\s*\(closed\)/i, ""),
+    // Closed committees ("… (Closed)" in GIS) are not shown as hosts.
+    hostLc: /closed/i.test(str(hostLcObj?.name) ?? "") ? undefined : str(hostLcObj?.full_name) ?? str(hostLcObj?.name),
+    hostLcKey: /closed/i.test(str(hostLcObj?.name) ?? "") ? undefined : lcFromGisName(str(hostLcObj?.name) ?? str(hostLcObj?.full_name))?.key,
     description,
     projectDescription: projectDescriptionRaw && projectDescriptionRaw !== description ? projectDescriptionRaw : undefined,
     duration,
@@ -344,6 +347,7 @@ export function toSummary(o: Opportunity): OpportunitySummary {
     citySlug: o.citySlug,
     coordinates: o.coordinates,
     organisation: o.organisation,
+    hostLcKey: o.hostLcKey,
     excerpt,
     durationWeeks: o.duration,
     openings: o.openings,

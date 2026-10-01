@@ -48,3 +48,17 @@ aiesec.org.eg, aiesec.it and the official brand kit at logos.aiesec.org.
   (paused for reduced motion).
 - No invented content: testimonials render only when real ones are added to
   `lib/content/stories.ts` (development shows clearly labelled placeholders).
+
+## Brand update (client direction)
+
+- **Identity comes from the campaign logos** (`public/brand/lmpy-*.png`, LC logos in `public/brand/lcs/`):
+  hand-drawn Poland outline, thin script "let me … you", heavy caps "POLISH" with a red brush swoosh.
+- **Palette:** white, brand red `#FC3A3A` (graphics, large type), `#D92B2B` (buttons/small text, 4.9:1), black ink.
+  AIESEC blue and programme colours are no longer used; the AIESEC logo appears in black or white only.
+- **Type:** Montserrat Black (matches "POLISH"), Ms Madi script for short lead-ins, Lato for reading.
+- **Naming:** customers see Global Volunteer, Global Talent, Global Teacher — never iGV/iGTa/iGTe.
+- **Structure:** Home → choose an experience → its page with live projects → opportunity → apply on aiesec.org.
+  Supporting pages: All opportunities, Life in Poland, About us (with the local teams).
+- **Product colours:** Global Volunteer `#F85A40`, Global Talent `#0CB9C1`, Global Teacher `#F48924` (official),
+  with the official product logos, wherever a program appears. Product surfaces carry black text.
+- **AIESEC blue** (`#037EF3`) appears only on "What's AIESEC?", where the page is about AIESEC itself.

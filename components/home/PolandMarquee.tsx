@@ -1,5 +1,3 @@
-import { Rosette } from "@/components/brand/Rosette";
-
 /** "Poland" in the languages of the people who come here. */
 const NAMES = [
   "Polska", "Poland", "Polonia", "Pologne", "Polen", "Польща", "波兰", "بولندا", "Polónia",
@@ -8,17 +6,17 @@ const NAMES = [
 
 export function PolandMarquee() {
   const row = (hidden: boolean) => (
-    <ul className="flex shrink-0 items-center gap-6 pr-6" aria-hidden={hidden || undefined}>
+    <ul className="flex shrink-0 items-center gap-8 pr-8" aria-hidden={hidden || undefined}>
       {NAMES.map((n) => (
-        <li key={n} className="flex items-center gap-6">
-          <span className="display whitespace-nowrap text-[clamp(1.6rem,3.2vw,2.6rem)]">{n}</span>
-          <Rosette color="#0a1f44" hole="#ffc845" variant="star" className="h-6 w-6 shrink-0" />
+        <li key={n} className="flex items-center gap-8">
+          <span className="display-caps whitespace-nowrap text-[clamp(1.5rem,3vw,2.4rem)]">{n}</span>
+          <span className="h-2 w-2 shrink-0 rounded-full bg-white/70" aria-hidden="true" />
         </li>
       ))}
     </ul>
   );
   return (
-    <div className="relative overflow-hidden bg-yellow py-4 text-navy" role="region" aria-label="Poland, in many languages">
+    <div className="relative overflow-hidden bg-red py-4 text-white" role="region" aria-label="Poland, in many languages">
       <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
         {row(false)}
         {row(true)}

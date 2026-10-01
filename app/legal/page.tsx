@@ -11,19 +11,19 @@ export const metadata: Metadata = {
 export default function LegalPage() {
   return (
     <>
-      <header className="bg-blue pb-12 pt-32 text-white md:pt-40">
+      <header className="bg-white pb-12 pt-28 md:pt-36">
         <div className="frame">
-          <h1 className="display-tight text-[clamp(3rem,7vw,6rem)]">The small print</h1>
+          <h1 className="display-caps text-[clamp(2.6rem,6vw,5rem)]">The small print</h1>
         </div>
       </header>
-      <div className="on-light frame max-w-4xl space-y-14 py-16">
+      <div className="frame max-w-4xl space-y-14 border-t border-line py-16">
         <section>
           <h2 className="display text-3xl">Privacy</h2>
           <div className="mt-4 space-y-3 text-[1.05rem] leading-relaxed text-grey">
             <p>This site does not ask you for personal data, does not use accounts, and sets no tracking or advertising cookies.</p>
             <p>
               Applications are made on the official AIESEC platform at{" "}
-              <a className="font-bold text-blue-ink link-underline" href={EXTERNAL.aiesecGlobal}>aiesec.org</a>, under AIESEC&apos;s own privacy policy.
+              <a className="font-bold text-red-ink link-underline" href={EXTERNAL.aiesecGlobal}>aiesec.org</a>, under AIESEC&apos;s own privacy policy.
             </p>
           </div>
         </section>
@@ -38,13 +38,18 @@ export default function LegalPage() {
         <section>
           <h2 className="display text-3xl">Brand</h2>
           <p className="mt-4 text-[1.05rem] leading-relaxed text-grey">
-            AIESEC, Global Volunteer, Global Talent and Global Teacher names and logos are trademarks of AIESEC International,
-            used from the official brand kit at logos.aiesec.org.
+            The Let Me Polish You campaign identity and the local committee logos belong to AIESEC in Poland. AIESEC, Global
+            Volunteer, Global Talent and Global Teacher are names and marks of AIESEC International; the AIESEC logo is used
+            from the official brand kit at logos.aiesec.org.
           </p>
         </section>
         <section id="credits">
           <h2 className="display text-3xl">Photo credits</h2>
-          <p className="mt-4 text-grey">All photographs are from Wikimedia Commons, used under the licences below. Some are cropped.</p>
+          <p className="mt-4 text-grey">
+            Exchange photos are provided by AIESEC in Poland. Other photographs are from Wikimedia Commons, used
+            under the licences below (some are cropped). Photos of smaller towns are loaded from Wikimedia Commons via
+            Wikidata and credited directly next to the photo.
+          </p>
           <ul className="mt-6 divide-y divide-line">
             {ALL_PHOTOS.map((p) => (
               <li key={p.credit.source} className="py-3 text-[0.95rem]">

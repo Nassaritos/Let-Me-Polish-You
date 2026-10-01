@@ -1,7 +1,7 @@
 /**
  * Program definitions shared by server and client code.
- * Contains no secrets and no opportunity data — only how each AIESEC
- * programme is identified in GIS and how it is presented on the site.
+ * Customers know these as Global Volunteer, Global Talent and Global Teacher —
+ * internal ids (igv/igta/igte) never appear in the interface.
  */
 
 export const PROGRAMS = ["igv", "igta", "igte"] as const;
@@ -11,13 +11,14 @@ export interface ProgramInfo {
   id: Program;
   /** GIS programme id */
   gisId: number;
-  /** Short code shown in the UI */
-  code: string;
+  /** Public URL slug, e.g. /global-volunteer */
+  slug: "global-volunteer" | "global-talent" | "global-teacher";
+  /** Customer-facing name */
   name: string;
-  /** One-word verb used as the program's editorial headline */
+  /** One-word mood used in headlines */
   verb: string;
-  /** Plain-language label used in filters ("Volunteer", "Work", "Teach") */
-  intent: string;
+  /** What you do: "Volunteer", "Intern", "Teach" */
+  action: string;
   tagline: string;
   /** Segment used in the public aiesec.org opportunity URL */
   aiesecSegment: string;
@@ -29,10 +30,10 @@ export const PROGRAM_INFO: Record<Program, ProgramInfo> = {
   igv: {
     id: "igv",
     gisId: 7,
-    code: "iGV",
+    slug: "global-volunteer",
     name: "Global Volunteer",
     verb: "Give",
-    intent: "Volunteer",
+    action: "Volunteer",
     tagline: "Volunteer on a project that pushes a UN Global Goal forward.",
     aiesecSegment: "global-volunteer",
     gisShortNames: ["gv", "igv", "ogv", "global volunteer"],
@@ -40,10 +41,10 @@ export const PROGRAM_INFO: Record<Program, ProgramInfo> = {
   igta: {
     id: "igta",
     gisId: 8,
-    code: "iGTa",
+    slug: "global-talent",
     name: "Global Talent",
     verb: "Grow",
-    intent: "Intern",
+    action: "Intern",
     tagline: "An international internship that moves your career.",
     aiesecSegment: "global-talent",
     gisShortNames: ["gt", "gta", "igt", "igta", "ogta", "global talent"],
@@ -51,10 +52,10 @@ export const PROGRAM_INFO: Record<Program, ProgramInfo> = {
   igte: {
     id: "igte",
     gisId: 9,
-    code: "iGTe",
+    slug: "global-teacher",
     name: "Global Teacher",
     verb: "Teach",
-    intent: "Teach",
+    action: "Teach",
     tagline: "Teach in a Polish school — and learn more than you teach.",
     aiesecSegment: "global-teacher",
     gisShortNames: ["gte", "igte", "ogte", "global teacher"],
@@ -63,6 +64,14 @@ export const PROGRAM_INFO: Record<Program, ProgramInfo> = {
 
 export function isProgram(value: unknown): value is Program {
   return typeof value === "string" && (PROGRAMS as readonly string[]).includes(value);
+}
+
+/** Accepts public slugs ("global-volunteer", "volunteer") and legacy ids ("igv"). */
+export function programFromParam(value: unknown): Program | undefined {
+  if (typeof value !== "string") return undefined;
+  const v = value.toLowerCase();
+  if (isProgram(v)) return v;
+  return PROGRAMS.find((p) => PROGRAM_INFO[p].slug === v || PROGRAM_INFO[p].slug.replace("global-", "") === v);
 }
 
 export function programFromGis(input: { id?: unknown; short?: unknown }): Program | undefined {
@@ -76,4 +85,8 @@ export function programFromGis(input: { id?: unknown; short?: unknown }): Progra
 
 export function aiesecOpportunityUrl(program: Program, id: string): string {
   return `https://aiesec.org/opportunity/${PROGRAM_INFO[program].aiesecSegment}/${encodeURIComponent(id)}`;
+}
+
+export function programHref(program: Program): string {
+  return `/${PROGRAM_INFO[program].slug}`;
 }
