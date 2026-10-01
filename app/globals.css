@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+/*
+ * LET ME POLISH YOU — design tokens
+ * Built on the official AIESEC palette (logos.aiesec.org/colours).
+ * Contrast notes: white on --blue is 4:1 (large/bold text only); white on
+ * teal/orange fails, so program colour blocks always carry --navy text.
+ */
+@theme {
+  --color-blue: #037ef3; /* AIESEC Blue — brand fields, large type */
+  --color-blue-ink: #0560c8; /* small text, links, buttons on white (6:1) */
+  --color-blue-soft: #e6f2fe;
+  --color-navy: #0a1f44; /* primary text, dark sections */
+  --color-navy-2: #13305f;
+  --color-grey: #52565e; /* AIESEC Grey — secondary text */
+  --color-mist: #f5f5f5; /* AIESEC Light */
+  --color-line: #dfe3ea;
+  --color-yellow: #ffc845;
+  --color-purple: #7552cc;
+  --color-green: #00c16e;
+
+  /* Programs (official AIESEC product colours) */
+  --color-gv: #f85a40;
+  --color-gta: #0cb9c1;
+  --color-gte: #f48924;
+  /* Darker variants for text on white (≥4.5:1) */
+  --color-gv-ink: #c2371f;
+  --color-gta-ink: #087f85;
+  --color-gte-ink: #a85508;
+
+  --font-display: var(--font-bricolage), "Arial Black", sans-serif;
+  --font-sans: var(--font-lato), ui-sans-serif, system-ui, sans-serif;
+  --font-hand: var(--font-caveat), "Comic Sans MS", cursive;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --radius-photo: 1.25rem;
+  --breakpoint-xs: 26rem;
+
+  --animate-marquee: marquee 60s linear infinite;
+  @keyframes marquee {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --gutter: clamp(1rem, 4vw, 3.5rem);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5.5rem;
+  }
+
+  body {
+    background: #ffffff;
+    color: var(--color-navy);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--color-yellow);
+    color: var(--color-navy);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-yellow);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  .on-light :focus-visible {
+    outline-color: var(--color-blue-ink);
+  }
+
+  input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+}
+
+@layer components {
+  .frame {
+    padding-inline: var(--gutter);
+  }
+
+  /* Heavy, friendly display voice */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-variation-settings: "wdth" 92, "opsz" 72;
+    letter-spacing: -0.018em;
+    line-height: 0.95;
+  }
+  .display-tight {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-variation-settings: "wdth" 78, "opsz" 96;
+    letter-spacing: -0.01em;
+    line-height: 0.88;
+    text-transform: uppercase;
+  }
+
+  .eyebrow {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variation-settings: "wdth" 80;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.78rem;
+    line-height: 1.2;
+  }
+
+  .hand {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    line-height: 1.05;
+  }
+
+  /* Buttons — AIESEC pills */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border-radius: 999px;
+    padding: 0.95rem 1.6rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variation-settings: "wdth" 90;
+    font-size: 1rem;
+    line-height: 1;
+    transition:
+      transform 0.35s var(--ease-spring),
+      background-color 0.25s,
+      color 0.25s,
+      box-shadow 0.25s;
+    white-space: nowrap;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  .btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+  .btn-primary {
+    background: var(--color-blue-ink);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: var(--color-navy);
+  }
+  .btn-white {
+    background: #fff;
+    color: var(--color-navy);
+    box-shadow: 0 6px 0 rgba(10, 31, 68, 0.18);
+  }
+  .btn-white:hover {
+    background: var(--color-yellow);
+  }
+  .btn-yellow {
+    background: var(--color-yellow);
+    color: var(--color-navy);
+    box-shadow: 0 6px 0 rgba(10, 31, 68, 0.25);
+  }
+  .btn-yellow:hover {
+    background: #fff;
+  }
+  .btn-ghost {
+    border: 2px solid currentColor;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    padding: 0.45rem 0.85rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+    line-height: 1.1;
+  }
+
+  .photo {
+    border-radius: var(--radius-photo);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .link-underline {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

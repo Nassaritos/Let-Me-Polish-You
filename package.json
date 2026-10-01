@@ -1,0 +1,33 @@
+{
+  "name": "let-me-polish-you",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Let Me Polish You — live opportunity discovery for AIESEC in Poland.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "gis:introspect": "node --env-file-if-exists=.env.local scripts/gis-introspect.mjs",
+    "gis:check": "node --env-file-if-exists=.env.local scripts/gis-check.mjs"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "motion": "^13.4.6",
+    "next": "^16.3.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.20.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.8",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3"
+  }
+}
