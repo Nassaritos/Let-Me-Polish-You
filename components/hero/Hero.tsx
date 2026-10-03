@@ -15,6 +15,12 @@ export interface HeroLive {
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
+/** The campaign's pun — both meanings of the word. */
+const DEFINITIONS = [
+  { word: "pol·ish", part: "verb", meaning: "to make better, brighter, more you.", tilt: -3 },
+  { word: "Pol·ish", part: "adjective", meaning: "from Poland.", tilt: 2 },
+] as const;
+
 const COLLAGE: { photo: Photo; caption: string; className: string; tilt: number; y: number }[] = [
   { photo: PHOTOS.juwenaliaCrowd, caption: "new friends", className: "left-[4%] top-[2%] w-[58%]", tilt: -4, y: -30 },
   { photo: PHOTOS.exchangeThankYou, caption: "real impact", className: "right-[2%] top-[22%] w-[46%]", tilt: 5, y: 20 },
@@ -68,13 +74,48 @@ export function Hero({ live }: { live: HeroLive | null }) {
           )}
         </motion.div>
 
-        <div className="relative aspect-[1/1] w-full lg:col-span-6" aria-hidden="true">
-          {COLLAGE.map((c, i) => (
-            <Collage key={c.caption} item={c} index={i} progress={scrollYProgress} reduce={Boolean(reduce)} />
-          ))}
+        <div className="relative lg:col-span-6">
+          <div className="relative aspect-[1/1] w-full" aria-hidden="true">
+            {COLLAGE.map((c, i) => (
+              <Collage key={c.caption} item={c} index={i} progress={scrollYProgress} reduce={Boolean(reduce)} />
+            ))}
+          </div>
+          <Definitions reduce={Boolean(reduce)} />
         </div>
       </div>
     </section>
+  );
+}
+
+function Definitions({ reduce }: { reduce: boolean }) {
+  return (
+    <div className="relative z-10 mt-6 sm:absolute sm:bottom-[1%] sm:right-0 sm:mt-0 sm:w-[44%]">
+      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-1 sm:gap-2">
+        {DEFINITIONS.map((d, i) => (
+          <motion.div
+            key={d.part}
+            className={`label-box px-4 py-3 ${i === 1 ? "sm:ml-[8%]" : ""}`}
+            initial={{ opacity: 0, y: 16, rotate: 0 }}
+            animate={{ opacity: 1, y: 0, rotate: d.tilt }}
+            whileHover={reduce ? undefined : { rotate: 0, scale: 1.03 }}
+            transition={{ duration: 0.7, delay: 0.7 + i * 0.12, ease: EASE }}
+          >
+            <dt className="display text-[1.15rem]">
+              {d.word} <span className="font-sans text-sm font-normal italic text-grey">{d.part}</span>
+            </dt>
+            <dd className="mt-1 text-[0.95rem] leading-snug text-ink-2">{d.meaning}</dd>
+          </motion.div>
+        ))}
+      </dl>
+      <motion.p
+        className="script mt-2 text-right text-[clamp(1.6rem,2.4vw,2.2rem)] text-red-ink"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 1.05 }}
+      >
+        → both apply.
+      </motion.p>
+    </div>
   );
 }
 

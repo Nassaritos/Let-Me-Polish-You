@@ -3,8 +3,19 @@ export const SITE = {
   tagline: "Live opportunities hosted by AIESEC in Poland",
   description:
     "Volunteer, intern or teach in Poland with AIESEC. Explore live Global Volunteer, Global Talent and Global Teacher opportunities hosted by AIESEC in Poland.",
-  url: (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, ""),
+  url: siteUrl(),
 };
+
+/**
+ * Absolute site origin for metadata, sitemap and share images (WhatsApp, LinkedIn… need absolute URLs).
+ * NEXT_PUBLIC_SITE_URL wins; on Vercel it falls back to the project's production domain, never to localhost.
+ */
+function siteUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  const url = explicit || (vercel ? `https://${vercel}` : "http://localhost:3000");
+  return url.replace(/\/$/, "");
+}
 
 export const NAV_LINKS = [
   { href: "/global-volunteer", label: "Global Volunteer" },
