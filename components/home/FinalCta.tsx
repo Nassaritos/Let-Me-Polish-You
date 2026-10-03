@@ -14,7 +14,7 @@ export function FinalCta() {
       <div className="frame relative flex min-h-[80svh] flex-col justify-end pb-16 pt-32 md:pb-24">
         <p className="script text-[clamp(2.4rem,4vw,3.6rem)]">so…</p>
         <h2 id="final-title" className="display-caps max-w-5xl text-[clamp(3rem,8.6vw,8rem)]">
-          Where will <SwooshWord color="#ffffff">Poland</SwooshWord> take you?
+          Where will <SwooshWord color="#fc3a3a">Poland</SwooshWord> take you?
         </h2>
         <div className="mt-10 flex flex-col gap-6 md:flex-row md:items-center">
           <Link href="/opportunities" className="btn btn-white self-start !px-8 !py-5 text-[1.1rem]">

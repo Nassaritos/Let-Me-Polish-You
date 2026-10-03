@@ -31,7 +31,7 @@ const madi = Ms_Madi({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: "Let Me Polish You — Volunteer, intern or teach in Poland with AIESEC",
+    default: "Let Me Polish You",
     template: "%s | Let Me Polish You",
   },
   description: SITE.description,

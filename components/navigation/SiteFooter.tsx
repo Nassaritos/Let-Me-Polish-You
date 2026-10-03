@@ -58,7 +58,7 @@ export function SiteFooter() {
       </div>
 
       <div className="frame flex flex-col gap-3 border-t border-white/15 py-6 text-[0.88rem] text-white/65 sm:flex-row sm:items-center sm:justify-between">
-        <p>© {year} AIESEC in Poland · Developed with ❤️ by Ibraheem Nassar</p>
+        <p>© {year} AIESEC in Poland · Developed with ❤️ by Ibraheem Nassar & Muhammed Essam</p>
         <ul className="flex flex-wrap gap-x-6 gap-y-2">
           <li><Link className="hover:text-white" href="/legal">Privacy & legal</Link></li>
           <li><Link className="hover:text-white" href="/legal#credits">Photo credits</Link></li>
